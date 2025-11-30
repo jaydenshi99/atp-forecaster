@@ -21,10 +21,10 @@ cd data/raw
 git clone https://github.com/JeffSackmann/tennis_atp.git tennis_atp-master
 
 if [ $? -eq 0 ]; then
-    echo "✓ Data downloaded successfully!"
+    echo "Data downloaded successfully!"
     echo "You can now run: python src/atp_forecaster/data/clean_data.py"
 else
-    echo "✗ Download failed. Please download manually from:"
+    echo "Download failed. Please download manually from:"
     echo "  https://github.com/JeffSackmann/tennis_atp"
     exit 1
 fi

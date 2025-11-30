@@ -177,9 +177,9 @@ def main():
     # Sort by date and reset index for consistent row ordering
     df = df.sort_values('tourney_date').reset_index(drop=True)
     
-    # Save with index so it can be used for merging
-    df.to_csv('./data/cleaned/atp_matches_cleaned.csv', index=True)
-    logger.info(f"Data cleaning completed! Saved {len(df)} rows to ./data/cleaned/atp_matches_cleaned.csv")
+    # Save as parquet (preserves index and data types, faster and smaller)
+    df.to_parquet('./data/cleaned/atp_matches_cleaned.parquet', index=True)
+    logger.info(f"Data cleaning completed! Saved {len(df)} rows to ./data/cleaned/atp_matches_cleaned.parquet")
 
 if __name__ == "__main__":
     main()

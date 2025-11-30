@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 def get_data():
     # Load with index to preserve row order for merging
-    return pd.read_csv("./data/cleaned/atp_matches_cleaned.csv", index_col=0)
+    return pd.read_parquet("./data/cleaned/atp_matches_cleaned.parquet")
 
 def add_glicko2_elo(
     df: pd.DataFrame,
@@ -102,9 +102,9 @@ def main():
     logger.info("Starting Glicko-2 rating calculation...")
     df = get_data()
     glicko_df = add_glicko2_elo(df)
-    # Save with index for merging
-    glicko_df.to_csv('./data/features/glicko2_ratings.csv', index=True)
-    logger.info(f"Glicko-2 rating calculation completed! Saved {len(glicko_df)} rows to ./data/features/glicko2_ratings.csv")
+    # Save as parquet (preserves index and data types, faster and smaller)
+    glicko_df.to_parquet('./data/features/glicko2_ratings.parquet', index=True)
+    logger.info(f"Glicko-2 rating calculation completed! Saved {len(glicko_df)} rows to ./data/features/glicko2_ratings.parquet")
 
 if __name__ == "__main__":
     main()
