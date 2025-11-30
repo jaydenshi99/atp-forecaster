@@ -1,6 +1,15 @@
 # Data files (too large for git)
-data/
+data/raw/
+data/features/
+data/model_inputs/
+
+# Allow cleaned data (smaller, useful for others to run code)
+# data/cleaned/ is NOT ignored
+
+# Ignore other CSV files but allow cleaned data
 *.csv
+!data/cleaned/*.csv
+!src/**/*.py
 
 # Python
 __pycache__/
