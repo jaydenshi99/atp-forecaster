@@ -46,8 +46,8 @@ def emwa(
     if total_rows == 0:
         return features_df
 
-    # Progress checkpoints at 10%, 20%, ..., 90%
-    checkpoints = {int(total_rows * p / 10) for p in range(1, 10)}
+    # Progress checkpoints at every 5%
+    checkpoints = {int(total_rows * p / 20) for p in range(1, 20)}
 
     for i, (idx, row) in enumerate(df.iterrows(), start=1):
         today_date = datetime.strptime(str(row["tourney_date"]), "%Y%m%d")
@@ -77,7 +77,7 @@ def emwa(
                 recent[player_id][feature] = (new_value, today_date)
 
         if i in checkpoints:
-            logger.info(f"EMWA progress: {int(i / total_rows * 100)}% ({i}/{total_rows})")
+            logger.info(f"EMWA progress: {math.ceil(i / total_rows * 100)}% ({i}/{total_rows})")
 
     return features_df
 
