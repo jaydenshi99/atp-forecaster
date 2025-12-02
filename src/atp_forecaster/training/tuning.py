@@ -69,8 +69,6 @@ def tune_model(
     - build_model: callable(**params) -> estimator with fit / predict_proba
     """
 
-    X = StandardScaler().fit_transform(X)
-
     def objective(trial: optuna.Trial) -> float:
         clf_kwargs = suggest_params(trial)
 
