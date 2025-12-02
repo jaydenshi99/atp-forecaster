@@ -80,19 +80,25 @@ def add_glicko2_elo(
 
         res = row[result_col]
 
-        # The library's update_player takes lists of opponent ratings/RDs and scores.
+        # Cache pre-match ratings/RDs so updates use old values
+        Ra_old, Rb_old = p_a.getRating(), p_b.getRating()
+        RDa_old, RDb_old = p_a.getRd(), p_b.getRd()
+
+        Ra_surf_old, Rb_surf_old = p_a_surface.getRating(), p_b_surface.getRating()
+        RDa_surf_old, RDb_surf_old = p_a_surface.getRd(), p_b_surface.getRd()
+
         if res == 1:          # A wins
-            p_a.update_player([p_b.getRating()], [p_b.getRd()], [1.0])
-            p_b.update_player([p_a.getRating()], [p_a.getRd()], [0.0])
+            p_a.update_player([Rb_old], [RDb_old], [1.0])
+            p_b.update_player([Ra_old], [RDa_old], [0.0])
 
-            p_a_surface.update_player([p_b_surface.getRating()], [p_b_surface.getRd()], [1.0])
-            p_b_surface.update_player([p_a_surface.getRating()], [p_a_surface.getRd()], [0.0])
+            p_a_surface.update_player([Rb_surf_old], [RDb_surf_old], [1.0])
+            p_b_surface.update_player([Ra_surf_old], [RDa_surf_old], [0.0])
         elif res == 0:        # B wins
-            p_a.update_player([p_b.getRating()], [p_b.getRd()], [0.0])
-            p_b.update_player([p_a.getRating()], [p_a.getRd()], [1.0])
+            p_a.update_player([Rb_old], [RDb_old], [0.0])
+            p_b.update_player([Ra_old], [RDa_old], [1.0])
 
-            p_a_surface.update_player([p_b_surface.getRating()], [p_b_surface.getRd()], [0.0])
-            p_b_surface.update_player([p_a_surface.getRating()], [p_a_surface.getRd()], [1.0])
+            p_a_surface.update_player([Rb_surf_old], [RDb_surf_old], [0.0])
+            p_b_surface.update_player([Ra_surf_old], [RDa_surf_old], [1.0])
         else:
             raise ValueError(f"Unsupported result value in '{result_col}': {res}")
 

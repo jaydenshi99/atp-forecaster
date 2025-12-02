@@ -44,11 +44,6 @@ def time_series_cv(X, y, model, n_splits=100, debug=True):
         if debug:
             print(f"{i} AUC={auc:.4f}, Accuracy={acc:.4f}, LogLoss={loss:.4f}")
 
-    if debug:
-        print(f"\nAUC:      mean={np.mean(aucs):.4f}, std={np.std(aucs):.4f}")
-        print(f"Accuracy: mean={np.mean(accs):.4f}, std={np.std(accs):.4f}")
-        print(f"LogLoss:  mean={np.mean(losses):.4f}, std={np.std(losses):.4f}")
-
     return aucs, accs, losses
 
 def tune_model(
@@ -73,7 +68,7 @@ def tune_model(
 
         model = build_model(**clf_kwargs)
 
-        _, _, losses = time_series_cv(X, y, model, n_splits=cv, debug=False)
+        _, _, losses = time_series_cv(X, y, model, n_splits=cv, debug=True)
         return np.mean(losses)
 
     study = optuna.create_study(direction="minimize")
