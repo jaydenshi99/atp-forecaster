@@ -49,7 +49,7 @@ def main():
     # Save model to project root models directory
     models_dir = project_root / "models"
     models_dir.mkdir(exist_ok=True)
-    model_path = models_dir / "xgb_v2.pkl"
+    model_path = models_dir / "xgb_v1.pkl"
     
     joblib.dump(best_model, model_path)
     logger.info(f"Saved best model to {model_path}")
