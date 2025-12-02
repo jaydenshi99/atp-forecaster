@@ -77,7 +77,8 @@ def tune_model(
         return np.mean(losses)
 
     study = optuna.create_study(direction="minimize")
-    study.optimize(objective, n_trials=n_trials)
+    # Run trials in parallel if n_jobs > 1
+    study.optimize(objective, n_trials=n_trials, n_jobs=n_jobs)
 
     best_params = study.best_params
     best_value = study.best_value
