@@ -40,7 +40,7 @@ def build_matchup_features(df):
         df['age_diff'] = df['age_a'] - df['age_b']
         cols_to_drop += ['age_a', 'age_b']
 
-    rate_prefixes = [
+    difference_prefixes = [
         'elo',
         'elo_surface',
         'p_ace',
@@ -58,13 +58,32 @@ def build_matchup_features(df):
         'p_bpConv',
         'p_totalPtsWon',
         'dominance_ratio',
+        'age',
+        'ht',
+        'form_delta',
+        'elo_momentum',
+        'recent_minutes',
     ]
 
-    for prefix in rate_prefixes:
+    log_difference_prefixes = [
+        'rank_points',
+        'total_matches',
+        'total_surface_matches',
+        'recent_matches',
+    ]
+
+    for prefix in difference_prefixes:
         col_a = f'{prefix}_a'
         col_b = f'{prefix}_b'
         if col_a in df.columns and col_b in df.columns:
             df[f'{prefix}_diff'] = df[col_a] - df[col_b]
+            cols_to_drop += [col_a, col_b]
+    
+    for prefix in log_difference_prefixes:
+        col_a = f'{prefix}_a'
+        col_b = f'{prefix}_b'
+        if col_a in df.columns and col_b in df.columns:
+            df[f'log_{prefix}_diff'] = np.log1p(df[col_a]) - np.log1p(df[col_b])
             cols_to_drop += [col_a, col_b]
 
     # rank: use inverse rank difference; handle zeros as NaN
@@ -73,13 +92,12 @@ def build_matchup_features(df):
         rank_b = df['rank_b'].replace(0, np.nan)
         df['inv_rank_diff'] = (1.0 / rank_a) - (1.0 / rank_b)
         cols_to_drop += ['rank_a', 'rank_b']
-
-    # rank points: use log1p difference
-    if {'rank_points_a', 'rank_points_b'}.issubset(df.columns):
-        rp_a = df['rank_points_a'].astype(float)
-        rp_b = df['rank_points_b'].astype(float)
-        df['log_rank_points_diff'] = np.log1p(rp_a) - np.log1p(rp_b)
-        cols_to_drop += ['rank_points_a', 'rank_points_b']
+    
+    # hth_matches: use log_hth_matches
+    if {'hth_matches'}.issubset(df.columns):
+        hth_matches = df['hth_matches'].replace(0, np.nan)
+        df['log_hth_matches'] = np.log1p(hth_matches)
+        cols_to_drop += ['hth_matches']
 
     # drop originals
     cols_to_drop = [c for c in cols_to_drop if c in df.columns]

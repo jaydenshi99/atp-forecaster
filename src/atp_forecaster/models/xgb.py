@@ -1,5 +1,4 @@
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
 from xgboost import XGBClassifier
 
 def build_model(
@@ -13,7 +12,6 @@ def build_model(
     """ build an XGBoost model """
     model = Pipeline(
         steps=[
-            ("scaler", StandardScaler()),
             ("clf", XGBClassifier(
                 learning_rate=learning_rate,
                 max_depth=max_depth,

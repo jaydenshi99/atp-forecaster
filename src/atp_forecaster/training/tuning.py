@@ -1,9 +1,11 @@
-import numpy as np
-import optuna
 import logging
 from typing import Callable
 
-from sklearn.metrics import roc_auc_score, accuracy_score, log_loss
+import numpy as np
+import optuna
+import pandas as pd
+from sklearn.metrics import accuracy_score, log_loss, roc_auc_score
+from sklearn.preprocessing import StandardScaler
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +14,13 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
+
 def time_series_cv(X, y, model, n_splits=100, debug=True):
+    if isinstance(X, np.ndarray):
+        X = pd.DataFrame(X)
+    if isinstance(y, (np.ndarray, list, tuple)):
+        y = pd.Series(y)
+
     fold_size = len(X) // (n_splits + 1)
     aucs, accs, losses = [], [], []
 
@@ -60,6 +68,8 @@ def tune_model(
     - suggest_params: function(trial) -> dict of kwargs for search range
     - build_model: callable(**params) -> estimator with fit / predict_proba
     """
+
+    X = StandardScaler().fit_transform(X)
 
     def objective(trial: optuna.Trial) -> float:
         clf_kwargs = suggest_params(trial)

@@ -1,6 +1,9 @@
 # Data files (too large for git)
 data/raw/
 
+# Scrap notebooks
+notebooks/scrap/
+
 # Python
 __pycache__/
 *.py[cod]
