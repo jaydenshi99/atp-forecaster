@@ -5,7 +5,6 @@ import numpy as np
 import optuna
 import pandas as pd
 from sklearn.metrics import accuracy_score, log_loss, roc_auc_score
-from sklearn.preprocessing import StandardScaler
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +72,7 @@ def tune_model(
 
     study = optuna.create_study(direction="minimize")
     # Run trials in parallel if n_jobs > 1
-    study.optimize(objective, n_trials=n_trials, n_jobs=n_jobs)
+    study.optimize(objective, n_trials=n_trials, n_jobs=3)
 
     best_params = study.best_params
     best_value = study.best_value
