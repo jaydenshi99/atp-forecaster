@@ -59,7 +59,6 @@ def tune_model(
     n_trials: int = 50,
     cv: int = 3,
     n_jobs: int = -1,
-    direction: str = "maximize",
 ):
     """
     Bayesian hyperparameter optimisation using Optuna.
@@ -74,10 +73,10 @@ def tune_model(
 
         model = build_model(**clf_kwargs)
 
-        aucs, _, _ = time_series_cv(X, y, model, n_splits=cv, debug=False)
-        return np.mean(aucs)
+        _, _, losses = time_series_cv(X, y, model, n_splits=cv, debug=False)
+        return np.mean(losses)
 
-    study = optuna.create_study(direction=direction)
+    study = optuna.create_study(direction="minimize")
     study.optimize(objective, n_trials=n_trials)
 
     best_params = study.best_params

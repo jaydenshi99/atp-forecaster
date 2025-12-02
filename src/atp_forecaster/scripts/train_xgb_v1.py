@@ -42,8 +42,8 @@ def main():
         X, y,
         suggest_params=suggest_params,
         build_model=build_model,
-        n_trials=1,
-        cv=5,
+        n_trials=100,
+        cv=20,
     )
     
     # Save model to project root models directory
