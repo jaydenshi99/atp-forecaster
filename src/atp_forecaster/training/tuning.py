@@ -43,6 +43,8 @@ def time_series_cv(X, y, model, n_splits=100, debug=True):
         if debug:
             print(f"{i} AUC={auc:.4f}, Accuracy={acc:.4f}, LogLoss={loss:.4f}")
 
+    print(f"Mean AUC={np.mean(aucs):.4f}, Mean Accuracy={np.mean(accs):.4f}, Mean LogLoss={np.mean(losses):.4f}")
+
     return aucs, accs, losses
 
 def tune_model(
