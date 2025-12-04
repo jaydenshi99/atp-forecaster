@@ -46,13 +46,16 @@ def main():
         cv=8,
     )
     
-    # Save model to project root models directory
+    # Create an untrained model with best hyperparameters
+    untrained_model = build_model(**best_params)
+    
+    # Save untrained model to project root models directory
     models_dir = project_root / "models"
     models_dir.mkdir(exist_ok=True)
     model_path = models_dir / "xgb_v1.pkl"
     
-    joblib.dump(best_model, model_path)
-    logger.info(f"Saved best model to {model_path}")
+    joblib.dump(untrained_model, model_path)
+    logger.info(f"Saved untrained model (with best hyperparameters) to {model_path}")
     
     print("\n" + "="*50)
     print("Best hyperparameters:")
