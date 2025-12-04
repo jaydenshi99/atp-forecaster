@@ -28,8 +28,12 @@ def time_series_cv(X, y, model, n_splits=100, debug=True):
         X_train, y_train = X.iloc[:train_end], y[:train_end]
         X_test,  y_test  = X.iloc[train_end:train_end + fold_size], y[train_end:train_end + fold_size]
 
-        model.fit(X_train, y_train)
-        preds = model.predict_proba(X_test)[:,1]
+        # Create a fresh model for each fold to avoid XGBoost continuing from previous state
+        # Clone the model to get a new instance with same hyperparameters
+        from sklearn.base import clone
+        fold_model = clone(model)
+        fold_model.fit(X_train, y_train)
+        preds = fold_model.predict_proba(X_test)[:,1]
         
         auc = roc_auc_score(y_test, preds)
         pred_class = (preds >= 0.5).astype(int)
