@@ -15,7 +15,7 @@ def load_processed():
     # Get project root (assuming this file is in src/atp_forecaster/data/)
     project_root = Path(__file__).parent.parent.parent.parent
     
-    dataset_path = project_root / "data" / "training_data" / "dataset_v1_final.parquet"
+    dataset_path = project_root / "data" / "training_data" / "dataset_v1.parquet"
     
     if not dataset_path.exists():
         raise FileNotFoundError(
