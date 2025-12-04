@@ -2,17 +2,20 @@ import numpy as np
 import pandas as pd
 
 df_original = pd.read_parquet('./data/cleaned/atp_matches_cleaned.parquet')
-df_skills = pd.read_parquet('./data/features/player_performance.parquet')
-df_elo = pd.read_parquet('./data/features/glicko2_ratings.parquet')
-df_exp = pd.read_parquet('./data/features/experience.parquet')
-df_fatigue = pd.read_parquet('./data/features/fatigue.parquet')
-df_hth = pd.read_parquet('./data/features/head_to_head.parquet')
-df_mom = pd.read_parquet('./data/features/momentum.parquet')
+df_skills = pd.read_parquet('./data/features/base/player_performance.parquet')
+df_elo = pd.read_parquet('./data/features/base/glicko2_ratings.parquet')
+df_exp = pd.read_parquet('./data/features/base/experience.parquet')
+df_fatigue = pd.read_parquet('./data/features/base/fatigue.parquet')
+df_hth = pd.read_parquet('./data/features/base/head_to_head.parquet')
+df_mom = pd.read_parquet('./data/features/base/momentum.parquet')
 
 # concatenate all dataframes
 dfs = [df_original, df_skills, df_elo, df_exp, df_fatigue, df_hth, df_mom]
 df_full = pd.concat(dfs, axis=1)
 df_full = df_full.loc[:, ~df_full.columns.duplicated()]
+
+# save joined dataframe
+df_full.to_parquet("./data/features/feature_sets/dataset_v1_combined.parquet", index=True)
 
 # drop columns that are not needed
 cols_to_drop = [
