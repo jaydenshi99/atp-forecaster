@@ -202,6 +202,12 @@ def main():
     df = drop_columns(df)
     df = process_columns(df)
 
+    # create missing rows from one hot encoding
+    df['hand_a_A'] = 0
+    df['hand_b_A'] = 0
+    df['round_BR'] = 0
+    df['round_ER'] = 0
+
     print(df.isnull().sum().to_string())
     
     project_root = Path(__file__).resolve().parents[5]
