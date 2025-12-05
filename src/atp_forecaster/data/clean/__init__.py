@@ -12,15 +12,17 @@ def load_processed():
         X: Feature matrix (all columns except 'result')
         y: Target vector ('result' column)
     """
-    # Get project root (assuming this file is in src/atp_forecaster/data/)
-    project_root = Path(__file__).parent.parent.parent.parent
+    # Get project root (assuming this file is in src/atp_forecaster/data/clean/)
+    # parents[4] corresponds to the repository root when this file lives under
+    # src/atp_forecaster/data/clean/__init__.py
+    project_root = Path(__file__).resolve().parents[4]
     
     dataset_path = project_root / "data" / "training_data" / "dataset_v1.parquet"
-    
+
     if not dataset_path.exists():
         raise FileNotFoundError(
             f"Training dataset not found at {dataset_path}. "
-            "Please run build_dataset_v1.py first."
+            "Please run atp_forecaster.data.full.build_dataset_v1 to generate it."
         )
     
     df = pd.read_parquet(dataset_path)
