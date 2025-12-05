@@ -6,11 +6,21 @@ from pathlib import Path
 from atp_forecaster.data.full.build_dataset_v1 import one_hot_encode
 from atp_forecaster.data.full.build_dataset_v1 import build_matchup_features
 
+
+def find_project_root() -> Path:
+    """Find repo root by walking up until data/raw/tennis-data exists."""
+    here = Path(__file__).resolve()
+    for parent in here.parents:
+        if (parent / "data" / "raw" / "tennis-data").exists():
+            return parent
+    # Fallback to previous assumption (5 levels up) if not found
+    return Path(__file__).resolve().parents[5]
+
 def get_dataframes():
     start_year = 2001
     end_year = 2024
-    project_root = Path(__file__).resolve().parents[5]
-    odds_dir = project_root / "atp-forecaster" / "data" / "raw" / "tennis-data"
+    project_root = find_project_root()
+    odds_dir = project_root / "data" / "raw" / "tennis-data"
     files = []
 
     for year in range(start_year, end_year + 1):
@@ -39,7 +49,7 @@ def get_dataframes():
 
     # Concatenate all DataFrames in the list vertically (stacking rows)
     odds_df = pd.concat(dfs, axis=0, ignore_index=True)
-    sackman_path = project_root / "atp-forecaster" / "data" / "features" / "feature_sets" / "dataset_v1_combined.parquet"
+    sackman_path = project_root / "data" / "features" / "feature_sets" / "dataset_v1_combined.parquet"
     sackman_df = pd.read_parquet(sackman_path)
 
     # fix error in EXW
@@ -202,16 +212,24 @@ def main():
     df = drop_columns(df)
     df = process_columns(df)
 
-    # create missing rows from one hot encoding
-    df['hand_a_A'] = 0
-    df['hand_b_A'] = 0
-    df['round_BR'] = 0
-    df['round_ER'] = 0
+    # Align columns with training dataset schema (add missing as 0, drop extras)
+    project_root = find_project_root()
+    train_path = project_root / "data" / "training_data" / "dataset_v1.parquet"
+    train_cols = pd.read_parquet(train_path, columns=None).columns
+
+    missing_cols = train_cols.difference(df.columns)
+    for col in missing_cols:
+        df[col] = 0
+
+    extra_cols = df.columns.difference(train_cols)
+    if len(extra_cols) > 0:
+        df = df.drop(columns=extra_cols)
+
+    df = df[train_cols]
 
     print(df.isnull().sum().to_string())
     
-    project_root = Path(__file__).resolve().parents[5]
-    backtest_dir = project_root / "atp-forecaster" / "data" / "backtest"
+    backtest_dir = project_root / "data" / "backtest"
     df.to_parquet(backtest_dir / "backtest_v1.parquet")
 
 if __name__ == "__main__":
