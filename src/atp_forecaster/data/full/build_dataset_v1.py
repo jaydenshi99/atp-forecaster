@@ -31,7 +31,6 @@ def drop_unused_columns(df: pd.DataFrame) -> pd.DataFrame:
         "id_a",
         "id_b",
         "score",
-        "tourney_date",
         "minutes",
         "ace_a",
         "df_a",

@@ -30,13 +30,14 @@ installed in editable mode (`pip install -e .`) and run from the repo root with
 ## Training dataset
 - `data/training_data/dataset_v1.parquet`
   - Built by: `python -m atp_forecaster.data.full.build_dataset_v1`
+  - Processes `data/features/feature_sets/dataset_v1_combined.parquet` for optimal model input
   - One-hot encoded categorical fields; matchup diff/log-diff features; `result`
     is the target (last column).
-  - Joins player_performance, glicko2_ratings, experience, fatigue, head_to_head, momentum and the base cleaned data.
 
 ## Backtest dataset
 - `data/backtest/backtest_v1.parquet`
   - Built by: `python -m atp_forecaster.data.backtest.build_backtest_v1`
+  - Appends odds `data/training_data/dataset_v1.parquet` for backtesting
   - Merges odds (tennis-data) with Sackmann features, aligns on names/dates,
     keeps primary odds (`B365W/B365L/PSW/PSL`), engineered matchup features, and
     `result` as target.

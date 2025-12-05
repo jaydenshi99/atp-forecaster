@@ -164,7 +164,7 @@ def drop_columns(df):
         "W1","L1","W2","L2","W3","L3","W4","L4","W5","L5","Wsets","Lsets","Comment",
 
         # sackmann identifiers
-        "name_a","name_b","id_a","id_b","score","tourney_date","minutes",
+        "name_a","name_b","id_a","id_b","score","minutes",
 
         # raw stats A
         "ace_a","df_a","svpt_a","1stIn_a","1stWon_a","2ndWon_a","SvGms_a","bpSaved_a","bpFaced_a",
