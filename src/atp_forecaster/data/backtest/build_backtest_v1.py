@@ -173,9 +173,6 @@ def drop_columns(df):
         "Round","Best of","winner_new","loser_new","WRank","LRank",
         "W1","L1","W2","L2","W3","L3","W4","L4","W5","L5","Wsets","Lsets","Comment",
 
-        # sackmann identifiers
-        "name_a","name_b","id_a","id_b","score","minutes",
-
         # raw stats A
         "ace_a","df_a","svpt_a","1stIn_a","1stWon_a","2ndWon_a","SvGms_a","bpSaved_a","bpFaced_a",
 
@@ -212,23 +209,15 @@ def main():
     df = drop_columns(df)
     df = process_columns(df)
 
-    # Align columns with training dataset schema (add missing as 0, drop extras)
-    project_root = find_project_root()
-    train_path = project_root / "data" / "training_data" / "dataset_v1.parquet"
-    train_cols = pd.read_parquet(train_path, columns=None).columns
-
-    missing_cols = train_cols.difference(df.columns)
-    for col in missing_cols:
-        df[col] = 0
-
-    extra_cols = df.columns.difference(train_cols)
-    if len(extra_cols) > 0:
-        df = df.drop(columns=extra_cols)
-
-    df = df[train_cols]
+    # create missing rows from one hot encoding
+    df['hand_a_A'] = 0
+    df['hand_b_A'] = 0
+    df['round_BR'] = 0
+    df['round_ER'] = 0
 
     print(df.isnull().sum().to_string())
-    
+
+    project_root = find_project_root()
     backtest_dir = project_root / "data" / "backtest"
     df.to_parquet(backtest_dir / "backtest_v1.parquet")
 
