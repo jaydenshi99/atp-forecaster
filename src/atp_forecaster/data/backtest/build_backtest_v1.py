@@ -163,6 +163,9 @@ def merge_old_new(old_df, new_df):
     return merged
 
 def drop_columns(df):
+    identifier_cols = ["name_a","name_b","id_a","id_b","score","minutes"]
+    identifier_df = df[identifier_cols]
+
     columns_to_drop = [
         # merge helper
         "name_a_new","name_b_new","old_winner","old_loser",
@@ -173,6 +176,9 @@ def drop_columns(df):
         "Round","Best of","winner_new","loser_new","WRank","LRank",
         "W1","L1","W2","L2","W3","L3","W4","L4","W5","L5","Wsets","Lsets","Comment",
 
+        # sackmann identifiers
+        "name_a","name_b","id_a","id_b","score","minutes",
+
         # raw stats A
         "ace_a","df_a","svpt_a","1stIn_a","1stWon_a","2ndWon_a","SvGms_a","bpSaved_a","bpFaced_a",
 
@@ -182,7 +188,7 @@ def drop_columns(df):
 
     df = df.drop(columns=columns_to_drop, errors='ignore')
 
-    return df
+    return df, identifier_df
     
 def process_columns(df):
     df = one_hot_encode(df)
@@ -206,7 +212,7 @@ def main():
     print("rows in merged_df", merged_rows)
     print("percent lost", (og_rows - merged_rows) / og_rows)
 
-    df = drop_columns(df)
+    df, identifier_df = drop_columns(df)
     df = process_columns(df)
 
     # create missing rows from one hot encoding
@@ -214,6 +220,9 @@ def main():
     df['hand_b_A'] = 0
     df['round_BR'] = 0
     df['round_ER'] = 0
+
+    # add back in identifiers
+    df = pd.concat([identifier_df, df], axis=1)
 
     print(df.isnull().sum().to_string())
 
