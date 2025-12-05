@@ -1,14 +1,6 @@
-import sys
-from pathlib import Path
-
-# Add src directory to Python path so imports work
-project_root = Path(__file__).parent.parent.parent.parent
-src_dir = project_root / "src"
-if str(src_dir) not in sys.path:
-    sys.path.insert(0, str(src_dir))
-
 import logging
 import joblib
+from pathlib import Path
 
 from atp_forecaster.training.tuning import tune_model
 from atp_forecaster.data import load_processed
@@ -50,6 +42,7 @@ def main():
     untrained_model = build_model(**best_params)
     
     # Save untrained model to project root models directory
+    project_root = Path(__file__).parent.parent.parent.parent
     models_dir = project_root / "models"
     models_dir.mkdir(exist_ok=True)
     model_path = models_dir / "xgb_v1.pkl"
