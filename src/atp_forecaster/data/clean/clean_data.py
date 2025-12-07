@@ -175,7 +175,10 @@ def main():
     df = filter_corrupted_matches(df)
     
     # Sort by date and reset index for consistent row ordering
-    df = df.sort_values('tourney_date').reset_index(drop=True)
+    df = df.sort_values(['tourney_date']).reset_index(drop=True)
+
+    # Preserve original order for stable downstream sorting
+    df['order'] = np.arange(len(df))
     
     # Save as parquet (preserves index and data types, faster and smaller)
     df.to_parquet('./data/cleaned/atp_matches_cleaned.parquet', index=True)

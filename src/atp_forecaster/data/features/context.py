@@ -4,6 +4,8 @@ import logging
 from collections import defaultdict
 from collections import deque
 
+from atp_forecaster.data.clean import get_cleaned_atp_matches
+
 logger = logging.getLogger(__name__)
 
 logging.basicConfig(
@@ -12,19 +14,22 @@ logging.basicConfig(
 )
 
 def get_data():
-    df1 = pd.read_parquet("./data/cleaned/atp_matches_cleaned.parquet")
+    df1 = get_cleaned_atp_matches()
     df2 = pd.read_parquet("./data/features/base/glicko2_ratings.parquet")
 
-    # removes overlapping columns
-    overlap_cols = df1.columns.intersection(df2.columns)
-    if len(overlap_cols) > 0:
-        df2 = df2.drop(columns=list(overlap_cols))
+    # Drop overlapping cols (except join key) to avoid duplicates before merge
+    overlap = set(df1.columns).intersection(set(df2.columns)) - {"order"}
+    if overlap:
+        df2 = df2.drop(columns=list(overlap))
 
-    df = df1.join(df2, how="left")
+    df = df1.merge(df2, on="order", how="left")
+    df = df.sort_values('order').reset_index(drop=True)
     return df
 
 def head_to_head(df, k=10):
-    hth_df = df[['tourney_date', 'id_a', 'name_a', 'id_b', 'name_b']].copy()
+    iter_df = df.copy()
+    iter_df = iter_df.sort_values('order').reset_index(drop=True)
+    hth_df = iter_df[['order', 'tourney_date', 'id_a', 'name_a', 'id_b', 'name_b']].copy()
 
     hth_df['hth_win_p_a'] = 0.0
     hth_df['hth_matches'] = 0
@@ -66,7 +71,7 @@ def head_to_head(df, k=10):
 
         return win_percentage, matches
     
-    for index, row in df.iterrows():
+    for index, row in iter_df.iterrows():
         # update df
         win_percentage, matches = get_matchup_stats(row['id_a'], row['id_b'], k)
 
@@ -79,7 +84,9 @@ def head_to_head(df, k=10):
     return hth_df
 
 def experience(df):
-    exp_df = df[['tourney_date', 'id_a', 'name_a', 'id_b', 'name_b']].copy()
+    iter_df = df.copy()
+    iter_df = iter_df.sort_values('order').reset_index(drop=True)
+    exp_df = iter_df[['order', 'tourney_date', 'id_a', 'name_a', 'id_b', 'name_b']].copy()
 
     exp_df['total_matches_a'] = 0
     exp_df['total_matches_b'] = 0
@@ -95,7 +102,7 @@ def experience(df):
     def get_matches(id_, surface):
         return matchups[(id_, surface)]
     
-    for index, row in df.iterrows():
+    for index, row in iter_df.iterrows():
         # update df
         matches_a = get_matches(row['id_a'], 'All')
         matches_b = get_matches(row['id_b'], 'All')
@@ -128,7 +135,7 @@ def momentum_features(df, fast_span=5, slow_span=20):
       - elo_a, elo_b          (pre-match Elo ratings)
       - result                (1 if player A wins, 0 if player B wins)
     """
-    mom_df = df[['tourney_date', 'id_a', 'name_a', 'id_b', 'name_b']].copy()
+    mom_df = df[['order', 'tourney_date', 'id_a', 'name_a', 'id_b', 'name_b']].copy()
 
     mom_df['form_delta_a'] = 0.0
     mom_df['form_delta_b'] = 0.0
@@ -211,11 +218,11 @@ def fatigue_features(df, window_days=14):
       - recent_matches: matches played in the last `window_days` days
       - recent_minutes: minutes played in the last `window_days` days
     """
-
     df_iter = df.copy()
     df_iter['tourney_date'] = pd.to_datetime(df_iter['tourney_date'].astype(str), format='%Y%m%d')
+    df_iter = df_iter.sort_values('order').reset_index(drop=True)
 
-    fat_df = df_iter[['tourney_date', 'id_a', 'name_a', 'id_b', 'name_b']].copy()
+    fat_df = df_iter[['order', 'tourney_date', 'id_a', 'name_a', 'id_b', 'name_b']].copy()
 
     fat_df['recent_matches_a'] = 0
     fat_df['recent_matches_b'] = 0
@@ -266,18 +273,18 @@ def main():
     logger.info("Starting context feature calculation...")
     df = get_data()
 
-    hth_df = head_to_head(df)
-    hth_df.to_parquet("./data/features/base/head_to_head.parquet", index=True)
-    logger.info(f"Head to head feature calculation completed! Saved {len(hth_df)} rows to ./data/features/base/head_to_head.parquet")
+    # hth_df = head_to_head(df)
+    # hth_df.to_parquet("./data/features/base/head_to_head.parquet", index=True)
+    # logger.info(f"Head to head feature calculation completed! Saved {len(hth_df)} rows to ./data/features/base/head_to_head.parquet")
 
-    exp_df = experience(df)
-    exp_df.to_parquet("./data/features/base/experience.parquet", index=True)
-    logger.info(f"Experience feature calculation completed! Saved {len(exp_df)} rows to ./data/features/base/experience.parquet")
+    # exp_df = experience(df)
+    # exp_df.to_parquet("./data/features/base/experience.parquet", index=True)
+    # logger.info(f"Experience feature calculation completed! Saved {len(exp_df)} rows to ./data/features/base/experience.parquet")
 
 
-    mom_df = momentum_features(df)
-    mom_df.to_parquet("./data/features/base/momentum.parquet", index=True)
-    logger.info(f"Momentum feature calculation completed! Saved {len(mom_df)} rows to ./data/features/base/momentum.parquet")
+    # mom_df = momentum_features(df)
+    # mom_df.to_parquet("./data/features/base/momentum.parquet", index=True)
+    # logger.info(f"Momentum feature calculation completed! Saved {len(mom_df)} rows to ./data/features/base/momentum.parquet")
 
     fat_df = fatigue_features(df)
     fat_df.to_parquet("./data/features/base/fatigue.parquet", index=True)

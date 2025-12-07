@@ -1,10 +1,12 @@
 import numpy as np
 import pandas as pd
 
+from atp_forecaster.data.clean import get_cleaned_atp_matches
+
 
 def load_base_data() -> pd.DataFrame:
     """Load and join all base feature tables into a single dataframe."""
-    df_original = pd.read_parquet("./data/cleaned/atp_matches_cleaned.parquet")
+    df_original = get_cleaned_atp_matches()
     df_skills = pd.read_parquet("./data/features/base/player_performance.parquet")
     df_elo = pd.read_parquet("./data/features/base/glicko2_ratings.parquet")
     df_exp = pd.read_parquet("./data/features/base/experience.parquet")
@@ -12,8 +14,17 @@ def load_base_data() -> pd.DataFrame:
     df_hth = pd.read_parquet("./data/features/base/head_to_head.parquet")
     df_mom = pd.read_parquet("./data/features/base/momentum.parquet")
 
-    dfs = [df_original, df_skills, df_elo, df_exp, df_fatigue, df_hth, df_mom]
-    df_full = pd.concat(dfs, axis=1)
+    parts = [df_skills, df_elo, df_exp, df_fatigue, df_hth, df_mom]
+    df_full = df_original
+
+    for part in parts:
+        # Drop overlapping columns except the join key
+        overlap = set(df_full.columns).intersection(set(part.columns)) - {"order"}
+        if overlap:
+            part = part.drop(columns=list(overlap))
+        df_full = df_full.merge(part, on="order", how="left")
+
+    df_full = df_full.sort_values("order").reset_index(drop=True)
     df_full = df_full.loc[:, ~df_full.columns.duplicated()]
 
     # Save the raw joined feature set

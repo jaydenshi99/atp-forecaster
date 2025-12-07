@@ -4,6 +4,16 @@ import pandas as pd
 from pathlib import Path
 
 
+def get_cleaned_atp_matches():
+    """
+    Load the cleaned ATP matches dataset.
+    """
+    project_root = Path(__file__).resolve().parents[4]
+    atp_matches_path = project_root / "data" / "cleaned" / "atp_matches_cleaned.parquet"
+    df = pd.read_parquet(atp_matches_path)
+    df = df.sort_values(['order']).reset_index(drop=True)
+    return df
+
 def load_processed():
     """
     Load the processed training dataset.

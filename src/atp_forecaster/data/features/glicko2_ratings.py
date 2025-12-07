@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 from glicko2 import Player
 
+from atp_forecaster.data.clean import get_cleaned_atp_matches
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -13,8 +15,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def get_data():
-    # Load with index to preserve row order for merging
-    return pd.read_parquet("./data/cleaned/atp_matches_cleaned.parquet")
+    return get_cleaned_atp_matches()
 
 def add_glicko2_elo(
     df: pd.DataFrame,
@@ -41,7 +42,7 @@ def add_glicko2_elo(
     """
     
     # Create output dataframe preserving the index for merging
-    glicko_df = df[[id_a_col, id_b_col, date_col]].copy()
+    glicko_df = df[["order", id_a_col, id_b_col, date_col]].copy()
 
     glicko_df["elo_a"] = np.nan
     glicko_df["elo_b"] = np.nan

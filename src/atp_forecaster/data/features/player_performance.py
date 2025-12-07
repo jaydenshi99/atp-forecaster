@@ -5,6 +5,7 @@ import math
 from datetime import datetime
 import logging
 from collections import defaultdict
+from atp_forecaster.data.clean import get_cleaned_atp_matches
 
 logger = logging.getLogger(__name__)
 
@@ -14,8 +15,7 @@ logging.basicConfig(
 )
 
 def get_data():
-    # Load with index to preserve row order for merging
-    return pd.read_parquet("./data/cleaned/atp_matches_cleaned.parquet")
+    return get_cleaned_atp_matches()
 
 def emwa(
     df: pd.DataFrame,
@@ -32,7 +32,7 @@ def emwa(
 
     lambda_ = math.log(2) / half_life
 
-    features_df = df[["tourney_date", "id_a", "id_b"]].copy()
+    features_df = df[["order", "tourney_date", "id_a", "id_b"]].copy()
 
     # EWMA feature columns
     for feature in feature_computers:

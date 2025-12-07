@@ -228,6 +228,8 @@ def main():
 
     project_root = find_project_root()
     backtest_dir = project_root / "data" / "backtest"
+
+    df = df.sort_values('order').reset_index(drop=True)
     df.to_parquet(backtest_dir / "backtest_v1.parquet")
 
 if __name__ == "__main__":
