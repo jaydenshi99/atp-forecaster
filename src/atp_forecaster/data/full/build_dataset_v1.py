@@ -67,14 +67,6 @@ def build_matchup_features(df: pd.DataFrame) -> pd.DataFrame:
 
     cols_to_drop: list[str] = []
 
-    if {"ht_a", "ht_b"}.issubset(df.columns):
-        df["height_diff"] = df["ht_a"] - df["ht_b"]
-        cols_to_drop += ["ht_a", "ht_b"]
-
-    if {"age_a", "age_b"}.issubset(df.columns):
-        df["age_diff"] = df["age_a"] - df["age_b"]
-        cols_to_drop += ["age_a", "age_b"]
-
     difference_prefixes = [
         "elo",
         "elo_surface",
