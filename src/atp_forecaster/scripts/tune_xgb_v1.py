@@ -34,8 +34,8 @@ def main():
         X, y,
         suggest_params=suggest_params,
         build_model=build_model,
-        n_trials=200,
-        cv=8,
+        n_trials=30,
+        cv=4,
     )
     
     # Create an untrained model with best hyperparameters
