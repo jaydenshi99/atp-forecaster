@@ -174,10 +174,8 @@ def main():
     df = rename_columns(df)
     df = filter_corrupted_matches(df)
     
-    # Sort by date and reset index for consistent row ordering
-    df = df.sort_values(['tourney_date']).reset_index(drop=True)
-
-    # Preserve original order for stable downstream sorting
+    # Preserve original sequence and then sort by date deterministically
+    df = df.sort_values('tourney_date').reset_index(drop=True)
     df['order'] = np.arange(len(df))
     
     # Save as parquet (preserves index and data types, faster and smaller)
