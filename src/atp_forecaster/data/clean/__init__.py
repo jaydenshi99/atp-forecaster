@@ -41,7 +41,10 @@ def load_processed():
     if 'result' not in df.columns:
         raise ValueError("Dataset must contain 'result' column")
     
-    X = df.drop(columns=['result'])
+    X = df.drop(columns=['recent_minutes_diff',
+       'log_total_surface_matches_diff',
+       'log_recent_matches_diff',
+       'result'])
     y = df['result']
     
     return X, y
