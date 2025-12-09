@@ -12,7 +12,7 @@ This document describes the machine learning models used in the ATP forecaster p
 
 **Training Script:** `python -m atp_forecaster.scripts.tune_xgb_v1`
 
-**Performance:** `log_loss: 0.5233977167235858` with 100 fold CV
+**Performance:** `Mean AUC=0.7314, Mean Accuracy=0.6670, Mean LogLoss=0.6045` with 20 fold CV
 
 **Note:** The saved model is an untrained model.
 
