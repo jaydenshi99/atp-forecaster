@@ -34,7 +34,7 @@ def main():
         X, y,
         suggest_params=suggest_params,
         build_model=build_model,
-        n_trials=30,
+        n_trials=300,
         cv=4,
     )
     
