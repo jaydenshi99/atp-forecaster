@@ -3,7 +3,7 @@ import joblib
 from pathlib import Path
 
 from atp_forecaster.training.tuning import tune_model
-from atp_forecaster.data import load_processed
+from atp_forecaster.data import load_training_data_xgb_v1
 from atp_forecaster.models.xgb import build_model
 
 logging.basicConfig(
@@ -25,8 +25,8 @@ def suggest_params(trial):
 
 def main():
     """Main function to tune XGBoost model."""
-    logger.info("Loading processed training data...")
-    X, y = load_processed()
+    logger.info("Loading training data (xgb_v1)...")
+    X, y = load_training_data_xgb_v1()
     logger.info(f"Loaded {len(X)} samples with {len(X.columns)} features")
     
     logger.info("Starting hyperparameter tuning...")

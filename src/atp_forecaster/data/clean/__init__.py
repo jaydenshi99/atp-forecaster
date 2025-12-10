@@ -14,7 +14,7 @@ def get_cleaned_atp_matches():
     df = df.sort_values(['order']).reset_index(drop=True)
     return df
 
-def load_processed():
+def load_training_data_xgb_v1():
     """
     Load the processed training dataset.
     
