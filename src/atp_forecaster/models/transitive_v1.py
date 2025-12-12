@@ -150,9 +150,9 @@ class TransitiveV1:
         """
         Get the transitive player delta given serve and return win rates for each player.
         """
-        return (spw_a - (1 - rpw_a)) - (spw_b - (1 - rpw_b))
+        return spw_a - spw_b, rpw_a - rpw_b
 
-    def predict_match(self, id_a, id_b, best_of: int = 3):
+    def predict_match(self, id_a, id_b, best_of: int = 3, debug: bool = False):
         """
         Predict the outcome of a match between id_a and id_b. Returns the probability of id_a winning.
         """
@@ -166,15 +166,17 @@ class TransitiveV1:
             rpw_a = transitive_matches_a[opponent]["rpw"].mean()
             spw_b = transitive_matches_b[opponent]["spw"].mean()
             rpw_b = transitive_matches_b[opponent]["rpw"].mean()
-            delta = self.get_transitive_delta(spw_a, rpw_a, spw_b, rpw_b)
+            delta_serve, delta_return = self.get_transitive_delta(spw_a, rpw_a, spw_b, rpw_b)
 
-            spw_delta = np.clip(self.base_spw + delta, 0.0, 1.0)
-            rpw_delta = np.clip(1 - (self.base_spw - delta), 0.0, 1.0)
+            spw_delta = np.clip(self.base_spw + delta_serve, 0.0, 1.0)
+            rpw_delta = np.clip(1 - (self.base_spw - delta_return), 0.0, 1.0)
 
-            p_s = point_to_match_dp(spw_delta, self.base_rpw, best_of=best_of)
-            p_r = point_to_match_dp(self.base_spw, rpw_delta, best_of=best_of)
+            p = point_to_match_dp(spw_delta, rpw_delta, best_of=best_of)
 
-            probs.append(0.5 * (p_s + p_r))
+            if debug:
+                print("delta_serve: ", delta_serve, "delta_return: ", delta_return, "p: ", p)
+
+            probs.append(p)
         if not probs:
             return point_to_match_dp(self.base_spw, self.base_rpw, best_of=best_of)
 

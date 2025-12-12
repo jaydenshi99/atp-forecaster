@@ -16,3 +16,10 @@ This document describes the machine learning models used in the ATP forecaster p
 
 **Note:** The saved model is an untrained model.
 
+## Transitive v1 (`xgb_v1`)
+
+**Model Type:** Transitive, point by point
+
+**Training Dataset:** `data/cleaned/atp_matches_cleaned.parquet`
+
+**Performance:** `Mean AUC=0.5271, Mean Accuracy=0.5220, Mean LogLoss=0.6960` 2023 Data
