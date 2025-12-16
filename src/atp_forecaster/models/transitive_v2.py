@@ -4,7 +4,7 @@ import pandas as pd
 
 from atp_forecaster.scripts.point_to_match import point_to_match_dp
 
-class TransitiveV1:
+class TransitiveV2:
     def __init__(self, look_back: int = 120, base_spw: float = 0.6):
         self.history = None
         self.look_back = look_back  # look-back window in days
@@ -73,7 +73,7 @@ class TransitiveV1:
         else:
             self.history = pd.concat([self.history, row_df], ignore_index=True)
 
-    def find_common_opponents(self, id_a, id_b):
+    def find_common_opponents(self, id_a, id_b, surface: str | None = None):
         """
         Find the common opponents between id_a and id_b.
         """
@@ -85,6 +85,8 @@ class TransitiveV1:
         if self.look_back:
             cutoff = recent["tourney_date"].max() - pd.Timedelta(days=self.look_back)
             recent = recent[recent["tourney_date"] >= cutoff]
+        if surface is not None:
+            recent = recent[recent["surface"] == surface]
 
         opponents_a = pd.concat([
             recent.loc[recent["id_a"] == id_a, "id_b"],
@@ -97,7 +99,7 @@ class TransitiveV1:
 
         return set(opponents_a.unique()) & set(opponents_b.unique())
 
-    def get_transitive_matches(self, id_a, id_b):
+    def get_transitive_matches(self, id_a, id_b, surface: str | None = None):
         """
         Get per-opponent match histories for each player, restricted to common opponents.
 
@@ -113,8 +115,10 @@ class TransitiveV1:
         if self.look_back:
             cutoff = recent["tourney_date"].max() - pd.Timedelta(days=self.look_back)
             recent = recent[recent["tourney_date"] >= cutoff]
+        if surface is not None:
+            recent = recent[recent["surface"] == surface]
 
-        common = self.find_common_opponents(id_a, id_b)
+        common = self.find_common_opponents(id_a, id_b, surface=surface)
 
         required_cols = {
             "a": ("spw_a", "rpw_a"),
@@ -150,14 +154,14 @@ class TransitiveV1:
 
         return group_by_opponent(id_a), group_by_opponent(id_b)
 
-    def predict_match(self, id_a, id_b, best_of: int = 3, debug: bool = False):
+    def predict_match(self, id_a, id_b, best_of: int = 3, surface: str | None = None, debug: bool = False):
         """
         Predict the outcome of a match between id_a and id_b. Returns the probability of id_a winning.
         """
 
         probs = []
 
-        transitive_matches_a, transitive_matches_b = self.get_transitive_matches(id_a, id_b)
+        transitive_matches_a, transitive_matches_b = self.get_transitive_matches(id_a, id_b, surface=surface)
         for opponent in transitive_matches_a.keys():
             a_grp = transitive_matches_a[opponent].dropna(subset=["spw", "rpw", "spw_w", "rpw_w"])
             b_grp = transitive_matches_b[opponent].dropna(subset=["spw", "rpw", "spw_w", "rpw_w"])
