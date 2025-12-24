@@ -40,11 +40,13 @@ def load_training_data_xgb_v1():
     # Separate features and target
     if 'result' not in df.columns:
         raise ValueError("Dataset must contain 'result' column")
-    
-    X = df.drop(columns=['recent_minutes_diff',
+
+    cols_to_drop = ['recent_minutes_diff',
        'log_total_surface_matches_diff',
        'log_recent_matches_diff',
-       'result'])
+       'result']
+
+    X = df.drop(columns=cols_to_drop)
     y = df['result']
     
     return X, y
