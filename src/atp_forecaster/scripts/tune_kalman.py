@@ -6,7 +6,7 @@ import optuna
 import pandas as pd
 
 from atp_forecaster.data.clean import get_cleaned_atp_matches
-from atp_forecaster.models.kalman_filter_v2 import KalmanFilterV2
+from atp_forecaster.models.kalman_filter_v2 import KalmanFilterV1, KalmanFilterV2
 
 logging.basicConfig(
     level=logging.INFO,
@@ -28,7 +28,7 @@ def suggest_params(trial):
     }
 
 
-def tune_kalman_filter(df, suggest_params, n_trials=50):
+def tune_kalman_filter(df, suggest_params, version='v2', n_trials=50):
     """
     Bayesian hyperparameter optimization for Kalman filter using Optuna.
     
@@ -49,7 +49,12 @@ def tune_kalman_filter(df, suggest_params, n_trials=50):
         params = suggest_params(trial)
         
         # Create Kalman filter with hyperparameters
-        kalman = KalmanFilterV2(**params)
+        if version == 'v2':
+            kalman = KalmanFilterV2(**params)
+        elif version == 'v1':
+            kalman = KalmanFilterV1(**params)
+        else:
+            raise ValueError(f"Invalid version: {version}")
         
         # Generate features (processes chronologically, naturally doing time-series CV)
         df_with_predictions = kalman.generate_kalman_features(df.copy())
@@ -60,6 +65,7 @@ def tune_kalman_filter(df, suggest_params, n_trials=50):
         return log_loss
 
     study = optuna.create_study(direction="minimize")
+    # Use multiple workers for parallelization (each trial is independent)
     study.optimize(objective, n_trials=n_trials, n_jobs=1)
 
     best_params = study.best_params
@@ -73,6 +79,7 @@ def main():
     logger.info("Loading cleaned ATP matches data...")
     df = get_cleaned_atp_matches()
     logger.info(f"Loaded {len(df)} matches")
+    version = 'v1'
     
     # Ensure required columns exist
     required_cols = ["id_a", "id_b", "surface", "tourney_date", "result"]
@@ -85,16 +92,22 @@ def main():
         df,
         suggest_params=suggest_params,
         n_trials=100,
+        version=version,
     )
-    
+
     # Create model with best hyperparameters
-    best_model = KalmanFilterV2(**best_params)
+    if version == 'v2':
+        best_model = KalmanFilterV2(**best_params)
+    elif version == 'v1':
+        best_model = KalmanFilterV1(**best_params)
+    else:
+        raise ValueError(f"Invalid version: {version}")
     
     # Save model to project root models directory
     project_root = Path(__file__).parent.parent.parent.parent
     models_dir = project_root / "models"
     models_dir.mkdir(exist_ok=True)
-    model_path = models_dir / "kalman_v2.pkl"
+    model_path = models_dir / f"kalman_{version}.pkl"
     
     joblib.dump(best_model, model_path)
     logger.info(f"Saved model (with best hyperparameters) to {model_path}")

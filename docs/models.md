@@ -24,10 +24,18 @@ This document describes the machine learning models used in the ATP forecaster p
 
 **Performance:** `Mean AUC=0.47845, Mean Accuracy=0.4858, Mean LogLoss=0.71257` 2024 Validation Set
 
-## Transitive v2 (`xgb_v1`)
+## Transitive v2 (`xgb_v2`)
 
 **Model Type:** Transitive, point by point
 
 **Training Dataset:** `data/cleaned/atp_matches_cleaned.parquet`
 
 **Performance:** `Mean AUC=0.4775, Mean Accuracy=0.4725, Mean LogLoss=0.79869` 2024 Validation Set
+
+## Kalman Filter v2 (`kalman_v2`)
+
+**Model Type:** Kalman Filter
+
+**Description:** Uses match results only, improvement over v1 with the addition of surface specific elo.
+
+**Performance:** `log loss=0.6147`
