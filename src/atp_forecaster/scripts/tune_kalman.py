@@ -16,7 +16,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def suggest_params(trial):
+def suggest_params_v2(trial):
     """Suggest hyperparameters for Optuna trial."""
     return {
         "phi": trial.suggest_float("phi", 0.99, 0.999, log=False),
@@ -26,6 +26,16 @@ def suggest_params(trial):
         "eps_R": trial.suggest_float("eps_R", 1e-6, 1e-3, log=True),
         "init_var_g": trial.suggest_float("init_var_g", 0.1, 1.0, log=False),
         "init_var_d": trial.suggest_float("init_var_d", 0.05, 0.5, log=False),
+    }
+
+def suggest_params_v1(trial):
+    """Suggest hyperparameters for Optuna trial (v1 - simpler model)."""
+    return {
+        "init_s": trial.suggest_float("init_s", -0.5, 0.5, log=False),
+        "init_P": trial.suggest_float("init_P", 0.1, 1.0, log=False),
+        "q": trial.suggest_float("q", 1e-5, 1e-2, log=True),
+        "k": trial.suggest_float("k", 0.5, 2.0, log=False),
+        "eps_R": trial.suggest_float("eps_R", 1e-6, 1e-3, log=True),
     }
 
 
@@ -89,6 +99,14 @@ def main():
         raise ValueError(f"Missing required columns: {missing_cols}")
     
     logger.info("Starting hyperparameter tuning...")
+    # Select appropriate suggest_params function based on version
+    if version == 'v1':
+        suggest_params = suggest_params_v1
+    elif version == 'v2':
+        suggest_params = suggest_params_v2
+    else:
+        raise ValueError(f"Invalid version: {version}")
+    
     best_params, best_score, study = tune_kalman_filter(
         df,
         suggest_params=suggest_params,
