@@ -6,7 +6,8 @@ import optuna
 import pandas as pd
 
 from atp_forecaster.data.clean import get_cleaned_atp_matches
-from atp_forecaster.models.kalman_filter_v2 import KalmanFilterV1, KalmanFilterV2
+from atp_forecaster.models.kalman_filter_v1 import KalmanFilterV1
+from atp_forecaster.models.kalman_filter_v2 import KalmanFilterV2
 
 logging.basicConfig(
     level=logging.INFO,
