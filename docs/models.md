@@ -16,7 +16,7 @@ This document describes the machine learning models used in the ATP forecaster p
 
 **Note:** The saved model is an untrained model.
 
-## Transitive v1 (`xgb_v1`)
+## Transitive v1 (`transitive_v1`)
 
 **Model Type:** Transitive, point by point
 
@@ -24,7 +24,7 @@ This document describes the machine learning models used in the ATP forecaster p
 
 **Performance:** `Mean AUC=0.47845, Mean Accuracy=0.4858, Mean LogLoss=0.71257` 2024 Validation Set
 
-## Transitive v2 (`xgb_v2`)
+## Transitive v2 (`transitive_v2`)
 
 **Model Type:** Transitive, point by point
 
